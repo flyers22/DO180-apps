@@ -1,0 +1,27 @@
+FROM ubi8/ubi:8.5
+
+ARG NEXUS_VERSION=2.14.3-02
+
+ENV NEXUS_HOME=/opt/nexus
+
+RUN yum install -y java-1.8.0-openjdk-devel && yum clean all
+
+RUN groupadd -f -r -g 1001 nexus && \
+    useradd -u 1001 -r -m -d ${NEXUS_HOME} -s /sbin/nologin -g 1001 nexus && \
+    chown -R 1001:1001 ${NEXUS_HOME} && \
+    chmod -R 755 ${NEXUS_HOME} 
+
+ADD ./nexus-2.14.3-02-bundle.tar.gz ${NEXUS_HOME}
+
+ADD ./nexus-start.sh ${NEXUS_HOME}
+
+RUN ln -s ${NEXUS_HOME}/nexus-${NEXUS_VERSION} ${NEXUS_HOME}/nexus2
+
+USER nexus
+
+WORKDIR /opt/nexus
+
+VOLUME ["/opt/nexus/sonatype-work"]
+
+
+
